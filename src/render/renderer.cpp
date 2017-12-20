@@ -3,8 +3,13 @@
 #include "logging.h"
 #include "shadermanager.h"
 
+#include "renderable.h"
+#include "renderables/square.h"
+
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+
+#include <iostream>
 
 Renderer::Renderer(int windowSizeX /*= 640*/, int windowSizeY /*= 480*/) :
   m_WindowSizeX(windowSizeX), m_WindowSizeY(windowSizeY)
@@ -45,32 +50,10 @@ Renderer::Renderer(int windowSizeX /*= 640*/, int windowSizeY /*= 480*/) :
   m_ShaderManager = new ShaderManager;
   m_ShaderManager->CompileAllShaders();
 
-  //DEBUG
-  glGenVertexArrays(1, &VAO);
-
-  glBindVertexArray(VAO);
-  // 2. copy our vertices array in a buffer for OpenGL to use
-  float vertices[] = {
-     0.5f,  0.5f, 0.0f,  // top right
-     0.5f, -0.5f, 0.0f,  // bottom right
-    -0.5f, -0.5f, 0.0f,  // bottom left
-    -0.5f,  0.5f, 0.0f   // top left
-  };
-  unsigned int indices[] = {  // note that we start from 0!
-    0, 1, 3,   // first triangle
-    1, 2, 3    // second triangle
-  };
-
-  glGenBuffers(1, &VBO);
-  glBindBuffer(GL_ARRAY_BUFFER, VBO);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-  glGenBuffers(1, &EBO);
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-  // 3. then set our vertex attributes pointers
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-  glEnableVertexAttribArray(0);
+  // DEBUG
+  Square* square = new Square;
+  square->UpdateBuffers();
+  AddRenderable(square);
 }
 
 Renderer::~Renderer()
@@ -86,9 +69,14 @@ void Renderer::Update()
 {
   glClear(GL_COLOR_BUFFER_BIT);
 
-  glUseProgram(m_ShaderManager->GetShaderProgram(Shader::STD));
-  glBindVertexArray(VAO);
-  glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+  //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+  for(Renderable* renderable : renderables)
+  {
+    glUseProgram(m_ShaderManager->GetShaderProgram(Shader::STD));
+    glBindVertexArray(renderable->GetVAO());
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+  }
 
   glfwPollEvents();
   glfwSwapBuffers(m_Window);
@@ -96,5 +84,25 @@ void Renderer::Update()
   if(glfwWindowShouldClose(m_Window))
   {
     app->RequestClose();
+  }
+}
+
+void Renderer::AddRenderable(Renderable* renderable)
+{
+  if(renderable == nullptr)
+  {
+    Error("Attempted to add nullptr renderable");
+    return;
+  }
+
+  renderables.push_back(renderable);
+}
+
+void Renderer::RemoveRenderable(Renderable* renderable)
+{
+  if(renderable == nullptr)
+  {
+    Error("Attempted to add nullptr renderable");
+    return;
   }
 }

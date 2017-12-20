@@ -1,6 +1,10 @@
 #ifndef RENDERER_H
 #define RENDERER_H
 
+#include <vector>
+
+class Renderable;
+
 class Renderer
 {
 public:
@@ -10,18 +14,19 @@ public:
 
   void Update();
 
+  void AddRenderable(Renderable* renderable);
+  void RemoveRenderable(Renderable* renderable);
+
 private:
 
   class GLFWwindow* m_Window;
 
   class ShaderManager* m_ShaderManager;
-
+  
   int m_WindowSizeX;
   int m_WindowSizeY;
 
-  unsigned int VAO;
-  unsigned int VBO;
-  unsigned int EBO;
+  std::vector<Renderable*> renderables;
 };
 
 #endif

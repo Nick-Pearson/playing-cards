@@ -1,5 +1,7 @@
 #include "renderer.h"
+
 #include "logging.h"
+#include "shadermanager.h"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -38,24 +40,58 @@ Renderer::Renderer(int windowSizeX /*= 640*/, int windowSizeY /*= 480*/) :
   }
 
   glViewport(0, 0, m_WindowSizeX, m_WindowSizeY);
+
+  // compile shaders
+  m_ShaderManager = new ShaderManager;
+  m_ShaderManager->CompileAllShaders();
+
+  //DEBUG
+  glGenVertexArrays(1, &VAO);
+
+  glBindVertexArray(VAO);
+  // 2. copy our vertices array in a buffer for OpenGL to use
+  float vertices[] = {
+     0.5f,  0.5f, 0.0f,  // top right
+     0.5f, -0.5f, 0.0f,  // bottom right
+    -0.5f, -0.5f, 0.0f,  // bottom left
+    -0.5f,  0.5f, 0.0f   // top left
+  };
+  unsigned int indices[] = {  // note that we start from 0!
+    0, 1, 3,   // first triangle
+    1, 2, 3    // second triangle
+  };
+
+  glGenBuffers(1, &VBO);
+  glBindBuffer(GL_ARRAY_BUFFER, VBO);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+  glGenBuffers(1, &EBO);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+  // 3. then set our vertex attributes pointers
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+  glEnableVertexAttribArray(0);
 }
 
 Renderer::~Renderer()
 {
   LogVerbose("Shutting down renderer");
 
+  delete m_ShaderManager;
+
   glfwTerminate();
 }
 
 void Renderer::Update()
 {
-  LogVerbose("Frame update");
-
   glClear(GL_COLOR_BUFFER_BIT);
 
-  glfwSwapBuffers(m_Window);
+  glUseProgram(m_ShaderManager->GetShaderProgram(Shader::STD));
+  glBindVertexArray(VAO);
+  glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
   glfwPollEvents();
+  glfwSwapBuffers(m_Window);
 
   if(glfwWindowShouldClose(m_Window))
   {

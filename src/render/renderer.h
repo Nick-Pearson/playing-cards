@@ -14,8 +14,14 @@ private:
 
   class GLFWwindow* m_Window;
 
+  class ShaderManager* m_ShaderManager;
+
   int m_WindowSizeX;
   int m_WindowSizeY;
+
+  unsigned int VAO;
+  unsigned int VBO;
+  unsigned int EBO;
 };
 
 #endif

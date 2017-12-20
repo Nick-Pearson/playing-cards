@@ -8,6 +8,7 @@ EXEC = cards
 BUILD_DIR = build
 SRC_DIR = src
 LIB_DIR = libs
+RES_DIR = resources
 
 #determine the required files
 SRCS = $(shell find $(SRC_DIR) -name *.cpp)
@@ -31,7 +32,7 @@ INC_FLAGS = $(addprefix -I,$(INC_DIRS))
 RM = rm
 MKDIR = mkdir -p
 
-$(BUILD_DIR)/$(EXEC): $(OBJS) $(LIB_DEPS)
+$(BUILD_DIR)/$(EXEC): $(OBJS) $(LIB_DEPS) $(BUILD_DIR)/$(RES_DIR)
 	$(MKDIR) $(BUILD_DIR)
 	$(CC) $(OBJS) $(LIB_FLAGS) $(LFLAGS) -o $@
 
@@ -42,6 +43,9 @@ $(BUILD_DIR)/%.cpp.o: %.cpp $(HEADERS)
 $(BUILD_DIR)/lib%.a:
 	make -C $(LIB_DIR)/$(@:$(BUILD_DIR)/lib%.a=%)
 	cp $(@:$(BUILD_DIR)/lib%.a=$(LIB_DIR)/%/src/lib)$(@:$(BUILD_DIR)/lib%=%) $@;
+
+$(BUILD_DIR)/$(RES_DIR):
+	ln -s ../$(RES_DIR) $(BUILD_DIR)/$(RES_DIR)
 
 clean:
 	$(RM) -r $(BUILD_DIR)

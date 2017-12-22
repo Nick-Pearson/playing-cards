@@ -26,7 +26,7 @@ LIB_DEPS = $(addprefix $(BUILD_DIR)/lib, $(addsuffix .a, $(LIBS)))
 #linking
 LIB_FLAGS = -lGL -lGLU -lglfw3 -lX11 -lXxf86vm -lXrandr -lpthread -lXi -ldl -lXinerama -lXcursor -L$(BUILD_DIR) $(addprefix -l, $(LIBS))
 
-INC_DIRS = $(shell find $(SRC_DIR) -type d) $(LIB_INC)
+INC_DIRS = $(shell find $(SRC_DIR) -type d) $(LIB_DIR)/stb $(LIB_INC)
 INC_FLAGS = $(addprefix -I,$(INC_DIRS))
 
 RM = rm

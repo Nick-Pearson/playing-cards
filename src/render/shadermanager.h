@@ -7,6 +7,7 @@
 enum Shader
 {
   STD,
+  ATLAS,
 
   MAX
 };
@@ -22,6 +23,8 @@ public:
   int GetShaderProgram(Shader program) const;
 
 private:
+
+  int LinkProgram(int vertexShader, int fragShader);
 
   int CompileShader(const char* shaderFileName, GLenum ShaderType);
 

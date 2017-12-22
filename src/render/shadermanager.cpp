@@ -9,26 +9,15 @@
 void ShaderManager::CompileAllShaders()
 {
   int vertexShader = CompileShader("vertex.glsl", GL_VERTEX_SHADER);
-  int fragShader = CompileShader("frag.glsl", GL_FRAGMENT_SHADER);
+  int fragAtlasShader = CompileShader("frag_atlas.glsl", GL_FRAGMENT_SHADER);
+  int fragDefaultShader = CompileShader("frag_default.glsl", GL_FRAGMENT_SHADER);
 
-  shaderPrograms[Shader::STD] = glCreateProgram();
-  glAttachShader(shaderPrograms[Shader::STD], vertexShader);
-  glAttachShader(shaderPrograms[Shader::STD], fragShader);
-  glLinkProgram(shaderPrograms[Shader::STD]);
-
-  int success;
-  glGetProgramiv(shaderPrograms[Shader::STD], GL_LINK_STATUS, &success);
-  if(!success)
-  {
-    char infoLog[512];
-    glGetProgramInfoLog(shaderPrograms[Shader::STD], 512, NULL, infoLog);
-
-    Fatal("Failed to link shader program");
-    std::cout << infoLog << std::endl;
-  }
+  shaderPrograms[Shader::STD] = LinkProgram(vertexShader, fragDefaultShader);
+  shaderPrograms[Shader::ATLAS] = LinkProgram(vertexShader, fragAtlasShader);
 
   glDeleteShader(vertexShader);
-  glDeleteShader(fragShader);
+  glDeleteShader(fragAtlasShader);
+  glDeleteShader(fragDefaultShader);
 }
 
 int ShaderManager::GetShaderProgram(Shader program) const
@@ -39,6 +28,28 @@ int ShaderManager::GetShaderProgram(Shader program) const
   }
 
   return shaderPrograms[(int)program];
+}
+
+
+int ShaderManager::LinkProgram(int vertexShader, int fragShader)
+{
+  int shaderID = glCreateProgram();
+  glAttachShader(shaderID, vertexShader);
+  glAttachShader(shaderID, fragShader);
+  glLinkProgram(shaderID);
+
+  int success;
+  glGetProgramiv(shaderID, GL_LINK_STATUS, &success);
+  if(!success)
+  {
+    char infoLog[512];
+    glGetProgramInfoLog(shaderID, 512, NULL, infoLog);
+
+    Fatal("Failed to link shader program");
+    std::cout << infoLog << std::endl;
+  }
+
+  return shaderID;
 }
 
 int ShaderManager::CompileShader(const char* shaderFileName, GLenum ShaderType)

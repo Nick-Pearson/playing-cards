@@ -5,6 +5,7 @@
 
 #include "renderable.h"
 #include "renderables/square.h"
+#include "texture.h"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -54,6 +55,9 @@ Renderer::Renderer(int windowSizeX /*= 640*/, int windowSizeY /*= 480*/) :
   Square* square = new Square;
   square->UpdateBuffers();
   AddRenderable(square);
+
+  Texture* tex = new Texture("playingCards.png");
+  delete tex;
 }
 
 Renderer::~Renderer()
@@ -69,11 +73,9 @@ void Renderer::Update()
 {
   glClear(GL_COLOR_BUFFER_BIT);
 
-  //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
   for(Renderable* renderable : renderables)
   {
-    glUseProgram(m_ShaderManager->GetShaderProgram(Shader::STD));
+    glUseProgram(m_ShaderManager->GetShaderProgram(Shader::ATLAS));
     glBindVertexArray(renderable->GetVAO());
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
   }

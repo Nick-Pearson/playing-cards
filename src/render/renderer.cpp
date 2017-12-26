@@ -2,15 +2,20 @@
 
 #include "logging.h"
 #include "shadermanager.h"
-
+#include "shaderprogram.h"
 #include "renderable.h"
-#include "renderables/square.h"
+#include "sprite.h"
 #include "texture.h"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+#include <glm.hpp>
+#include <gtc/matrix_transform.hpp>
+#include <gtc/type_ptr.hpp>
+
 #include <iostream>
+#include <memory>
 
 Renderer::Renderer(int windowSizeX /*= 640*/, int windowSizeY /*= 480*/) :
   m_WindowSizeX(windowSizeX), m_WindowSizeY(windowSizeY)
@@ -51,13 +56,19 @@ Renderer::Renderer(int windowSizeX /*= 640*/, int windowSizeY /*= 480*/) :
   m_ShaderManager = new ShaderManager;
   m_ShaderManager->CompileAllShaders();
 
-  // DEBUG
-  Square* square = new Square;
-  square->UpdateBuffers();
-  AddRenderable(square);
+  //camera location
+  float aspectRatio = (float)m_WindowSizeY / (float)m_WindowSizeX;
+  m_ProjectionMatrix = glm::ortho(0.0f, 200.0f, 0.0f, 200.0f * aspectRatio, -1.0f, 100.0f);
 
-  Texture* tex = new Texture("playingCards.png");
-  delete tex;
+  // DEBUG
+  Sprite* sprite = new Sprite;
+  sprite->UpdateBuffers();
+  sprite->SetAtlasTexture(std::make_shared<Texture>(new Texture("playingCards.png")), 1, 1);
+
+  sprite->transform.SetPosition(glm::vec3(50.0f, 50.0f, 0.0f));
+  sprite->transform.SetScale(glm::vec3(14.0f, 19.0f, 10.0f));
+
+  AddRenderable(sprite);
 }
 
 Renderer::~Renderer()
@@ -75,8 +86,40 @@ void Renderer::Update()
 
   for(Renderable* renderable : renderables)
   {
-    glUseProgram(m_ShaderManager->GetShaderProgram(Shader::ATLAS));
+    //shader
+    ShaderProgram* shaderptr = m_ShaderManager->GetShaderProgram(renderable->GetShader());
+    if(m_CurShader != shaderptr)
+    {
+      glUseProgram(shaderptr ? shaderptr->GetID() : 0);
+
+      if(shaderptr)
+      {
+        shaderptr->SetMatrix("projection", m_ProjectionMatrix);
+      }
+
+      m_CurShader = shaderptr;
+    }
+
+    // apply texture if applicable
+    glActiveTexture(GL_TEXTURE0);
+    if(Texture* tex = renderable->GetTexture())
+    {
+      glBindTexture(GL_TEXTURE_2D, tex->GetTextureID());
+    }
+    else
+    {
+      glBindTexture(GL_TEXTURE_2D, 0);
+    }
+
+    //apply the model transform
+    if(m_CurShader)
+    {
+      m_CurShader->SetMatrix("model", renderable->transform.GetMatrix());
+    }
+
+    //apply verticies and draw
     glBindVertexArray(renderable->GetVAO());
+
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
   }
 

@@ -1,7 +1,7 @@
 #include "texture.h"
 
-#include "../core/paths.h"
-#include "../core/logging.h"
+#include "paths.h"
+#include "logging.h"
 
 #include <cstring>
 
@@ -45,4 +45,15 @@ Texture::Texture(const char* filepath)
   glGenerateMipmap(GL_TEXTURE_2D);
 
   stbi_image_free(data);
+}
+
+Texture::Texture(Texture* other)
+{
+  if(other) m_TID = other->GetTextureID();
+}
+
+
+Texture::~Texture()
+{
+  glDeleteTextures(1, &m_TID);
 }

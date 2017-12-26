@@ -1,9 +1,9 @@
-#ifndef SQUARE_H
-#define SQUARE_H
+#ifndef SPRITE_H
+#define SPRITE_H
 
-#include "../renderable.h"
+#include "renderable.h"
 
-class Square : public Renderable
+class Sprite : public Renderable
 {
   virtual void GetMeshData(std::vector<float>& outVerticies, std::vector<unsigned int>& outIndicies) const override;
 };

@@ -1,9 +1,11 @@
 #include "renderable.h"
 
-#include "../core/logging.h"
+#include "logging.h"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+
+#include <gtc/matrix_transform.hpp>
 
 void Renderable::GenerateBuffers()
 {
@@ -48,4 +50,22 @@ void Renderable::UpdateBuffers()
   glBindVertexArray(0);
   glBindBuffer(GL_ARRAY_BUFFER, 0);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+}
+
+void Renderable::SetTexture(const std::shared_ptr<Texture>& texture)
+{
+  m_Texture = texture;
+  m_TileX = -1;
+  m_TileY = -1;
+
+  m_Shader = ShaderType::STD;
+}
+
+void Renderable::SetAtlasTexture(const std::shared_ptr<Texture>& texture, int tileX, int tileY)
+{
+  m_Texture = texture;
+  m_TileX = tileX;
+  m_TileY = tileY;
+
+  m_Shader = ShaderType::ATLAS;
 }

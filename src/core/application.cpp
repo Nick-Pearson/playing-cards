@@ -4,7 +4,7 @@
 #include <time.h>
 #include <math.h>
 
-#include "../render/renderer.h"
+#include "renderer.h"
 #include "logging.h"
 
 Application* app;

@@ -4,7 +4,9 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-enum Shader
+class ShaderProgram;
+
+enum ShaderType
 {
   STD,
   ATLAS,
@@ -16,19 +18,18 @@ class ShaderManager
 {
 public:
   ShaderManager() {}
-  virtual ~ShaderManager() {}
+  virtual ~ShaderManager();
 
   void CompileAllShaders();
 
-  int GetShaderProgram(Shader program) const;
+  ShaderProgram* GetShaderProgram(ShaderType program) const;
+  unsigned int GetShaderProgramID(ShaderType program) const;
 
 private:
 
-  int LinkProgram(int vertexShader, int fragShader);
+  unsigned int CompileShader(const char* shaderFileName, GLenum ShaderType);
 
-  int CompileShader(const char* shaderFileName, GLenum ShaderType);
-
-  int shaderPrograms[(int)Shader::MAX];
+  ShaderProgram* shaderPrograms[(int)ShaderType::MAX];
 };
 
 #endif

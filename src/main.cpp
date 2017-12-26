@@ -1,4 +1,4 @@
-#include "core/application.h"
+#include "application.h"
 
 //returns current time in microseconds
 long get_timestamp();

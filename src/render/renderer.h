@@ -3,6 +3,8 @@
 
 #include <vector>
 
+#include <glm.hpp>
+
 class Renderable;
 
 class Renderer
@@ -19,10 +21,14 @@ public:
 
 private:
 
-  class GLFWwindow* m_Window;
+  class GLFWwindow* m_Window = nullptr;
 
-  class ShaderManager* m_ShaderManager;
-  
+  class ShaderManager* m_ShaderManager = nullptr;
+
+  class ShaderProgram* m_CurShader = nullptr;
+
+  glm::mat4 m_ProjectionMatrix;
+
   int m_WindowSizeX;
   int m_WindowSizeY;
 

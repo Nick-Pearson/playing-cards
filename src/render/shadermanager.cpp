@@ -1,58 +1,51 @@
 #include "shadermanager.h"
 
-#include "core/paths.h"
-#include "core/logging.h"
+#include "paths.h"
+#include "logging.h"
+#include "shaderprogram.h"
 
 #include <iostream>
 #include <cstring>
 
+ShaderManager::~ShaderManager()
+{
+  for(int i = 0; i < (int)ShaderType::MAX; ++i)
+    delete shaderPrograms[i];
+}
+
 void ShaderManager::CompileAllShaders()
 {
-  int vertexShader = CompileShader("vertex.glsl", GL_VERTEX_SHADER);
-  int fragAtlasShader = CompileShader("frag_atlas.glsl", GL_FRAGMENT_SHADER);
-  int fragDefaultShader = CompileShader("frag_default.glsl", GL_FRAGMENT_SHADER);
+  unsigned int vertexShader = CompileShader("vertex.glsl", GL_VERTEX_SHADER);
+  unsigned int fragAtlasShader = CompileShader("frag_atlas.glsl", GL_FRAGMENT_SHADER);
+  unsigned int fragDefaultShader = CompileShader("frag_default.glsl", GL_FRAGMENT_SHADER);
 
-  shaderPrograms[Shader::STD] = LinkProgram(vertexShader, fragDefaultShader);
-  shaderPrograms[Shader::ATLAS] = LinkProgram(vertexShader, fragAtlasShader);
+  shaderPrograms[ShaderType::STD] = new ShaderProgram(vertexShader, fragDefaultShader);
+  shaderPrograms[ShaderType::ATLAS] = new ShaderProgram(vertexShader, fragAtlasShader);
 
   glDeleteShader(vertexShader);
   glDeleteShader(fragAtlasShader);
   glDeleteShader(fragDefaultShader);
 }
 
-int ShaderManager::GetShaderProgram(Shader program) const
+ShaderProgram* ShaderManager::GetShaderProgram(ShaderType program) const
 {
-  if(program == Shader::MAX)
+  if(program == ShaderType::MAX)
   {
-    return -1;
+    return nullptr;
   }
 
   return shaderPrograms[(int)program];
 }
 
-
-int ShaderManager::LinkProgram(int vertexShader, int fragShader)
+unsigned int ShaderManager::GetShaderProgramID(ShaderType program) const
 {
-  int shaderID = glCreateProgram();
-  glAttachShader(shaderID, vertexShader);
-  glAttachShader(shaderID, fragShader);
-  glLinkProgram(shaderID);
+  if(ShaderProgram* shader = GetShaderProgram(program))
+    return shader->GetID();
 
-  int success;
-  glGetProgramiv(shaderID, GL_LINK_STATUS, &success);
-  if(!success)
-  {
-    char infoLog[512];
-    glGetProgramInfoLog(shaderID, 512, NULL, infoLog);
-
-    Fatal("Failed to link shader program");
-    std::cout << infoLog << std::endl;
-  }
-
-  return shaderID;
+  return 0;
 }
 
-int ShaderManager::CompileShader(const char* shaderFileName, GLenum ShaderType)
+unsigned int ShaderManager::CompileShader(const char* shaderFileName, GLenum ShaderType)
 {
   static char filepath[100];
   filepath[0] = '\0';
@@ -83,7 +76,7 @@ int ShaderManager::CompileShader(const char* shaderFileName, GLenum ShaderType)
 
   fclose(fp);
 
-  int shader = glCreateShader(ShaderType);
+  unsigned int shader = glCreateShader(ShaderType);
   glShaderSource(shader, 1, &filebuffer, NULL);
   glCompileShader(shader);
 

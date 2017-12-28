@@ -25,9 +25,10 @@ public:
   int GetVAO() const { return m_VAO; }
   ShaderType GetShader() const { return m_Shader; }
   Texture* GetTexture() const { return m_Texture.get(); }
+  glm::ivec4 GetTileCoords() const { return m_TileCoords; }
 
   void SetTexture(const std::shared_ptr<Texture>& texture);
-  void SetAtlasTexture(const std::shared_ptr<Texture>& texture, int tileX, int tileY);
+  void SetAtlasTexture(const std::shared_ptr<Texture>& texture, const glm::ivec4& tileCoords);
 
   Transform transform;
 
@@ -39,8 +40,7 @@ protected:
 private:
 
   std::shared_ptr<Texture> m_Texture;
-  int m_TileX = -1;
-  int m_TileY = -1;
+  glm::ivec4 m_TileCoords;
 
   void GenerateBuffers();
 

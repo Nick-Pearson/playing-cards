@@ -3,14 +3,14 @@
 
 #include <vector>
 
-extern class Application* app;
+extern class Application* gApp;
 
 class GameObject;
 
 class Application
 {
 public:
-  Application() {}
+  Application();
   virtual ~Application();
 
   inline bool ShouldBeClosed() { return m_ShouldBeClosed; }
@@ -23,6 +23,8 @@ public:
   void RemoveFromWorld(GameObject* obj);
 
 private:
+
+  static Application* instance;
 
   long getTimestamp() const;
 

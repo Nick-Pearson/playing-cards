@@ -1,10 +1,12 @@
 #ifndef PATHS_H
 #define PATHS_H
 
+#include <string>
+
 namespace Paths
 {
-  extern const char* ShaderPath;
-  extern const char* TexturePath;
+  extern const std::string ShaderPath;
+  extern const std::string TexturePath;
 }
 
 #endif

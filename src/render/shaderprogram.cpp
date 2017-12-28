@@ -43,6 +43,11 @@ void ShaderProgram::SetFloat(const std::string &name, float value) const
     glUniform1f(glGetUniformLocation(m_ID, name.c_str()), value);
 }
 
+void ShaderProgram::SetVector(const std::string &name, const glm::ivec4& value) const
+{
+  glUniform4iv(glGetUniformLocation(m_ID, name.c_str()), 1, glm::value_ptr(value));
+}
+
 void ShaderProgram::SetMatrix(const std::string &name, const glm::mat4& value) const
 {
   glUniformMatrix4fv(glGetUniformLocation(m_ID, name.c_str()), 1, GL_FALSE, glm::value_ptr(value));

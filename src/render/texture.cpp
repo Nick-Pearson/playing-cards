@@ -11,24 +11,18 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
-Texture::Texture(const char* filepath)
+Texture::Texture(const std::string& filepath)
 {
-  int fullpath_len = std::strlen(filepath) + std::strlen(Paths::TexturePath) + 2;
-  char full_path[fullpath_len];
-
-  full_path[0] = '\0';
-  full_path[fullpath_len - 1] = '\0';
-
-  std::strcat(full_path, Paths::TexturePath);
-  std::strcat(full_path, "/");
-  std::strcat(full_path, filepath);
+  std::string path = filepath;
+  path.insert(0, "/");
+  path.insert(0, Paths::TexturePath);
 
   int width, height, nrChannels;
-  unsigned char *data = stbi_load(full_path, &width, &height, &nrChannels, 0);
+  unsigned char *data = stbi_load(path.c_str(), &width, &height, &nrChannels, 0);
 
   if(data == nullptr)
   {
-    Error(full_path);
+    Error(path.c_str());
     Fatal("Failed to load texture");
     return;
   }

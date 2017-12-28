@@ -45,19 +45,18 @@ unsigned int ShaderManager::GetShaderProgramID(ShaderType program) const
   return 0;
 }
 
-unsigned int ShaderManager::CompileShader(const char* shaderFileName, GLenum ShaderType)
+unsigned int ShaderManager::CompileShader(const std::string& shaderFileName, GLenum ShaderType)
 {
-  static char filepath[100];
-  filepath[0] = '\0';
+  std::string filepath = shaderFileName;
 
-  std::strcat(filepath, Paths::ShaderPath);
-  std::strcat(filepath, "/");
-  std::strcat(filepath, shaderFileName);
+  filepath.insert(0, "/");
+  filepath.insert(0, Paths::ShaderPath);
 
-  FILE* fp = fopen(filepath, "r");
+  FILE* fp = fopen(filepath.c_str(), "r");
 
-  sprintf(filepath,"Compiling %s...",  shaderFileName);
-  LogVerbose(filepath);
+  filepath.append("...");
+  filepath.insert(0, "Compiling ");
+  LogVerbose(filepath.c_str());
 
   if(fp == nullptr)
   {

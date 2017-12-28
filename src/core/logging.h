@@ -22,7 +22,7 @@ namespace Logging
 
 #define Fatal(Message) \
   Logging::Log_Internal(Message, ANSI_COLOR_RED); \
-  app->RequestClose();
+  gApp->RequestClose();
 
 #define Error(Message) Logging::Log_Internal(Message, ANSI_COLOR_RED);
 

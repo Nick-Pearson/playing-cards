@@ -4,8 +4,10 @@
 #include "shadermanager.h"
 #include "shaderprogram.h"
 #include "renderable.h"
-#include "sprite.h"
 #include "texture.h"
+#include "texturemanager.h"
+
+#include "card.h"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -56,19 +58,20 @@ Renderer::Renderer(int windowSizeX /*= 640*/, int windowSizeY /*= 480*/) :
   m_ShaderManager = new ShaderManager;
   m_ShaderManager->CompileAllShaders();
 
+  //texture manager
+  gTextureManager = new TextureManager;
+
   //camera location
   float aspectRatio = (float)m_WindowSizeY / (float)m_WindowSizeX;
   m_ProjectionMatrix = glm::ortho(0.0f, 200.0f, 0.0f, 200.0f * aspectRatio, -1.0f, 100.0f);
 
   // DEBUG
-  Sprite* sprite = new Sprite;
-  sprite->UpdateBuffers();
-  sprite->SetAtlasTexture(std::make_shared<Texture>(new Texture("playingCards.png")), 1, 1);
+  Card* card = new Card(CardType::Ace, Suit::Diamonds, CardFace::FaceUp);
 
-  sprite->transform.SetPosition(glm::vec3(50.0f, 50.0f, 0.0f));
-  sprite->transform.SetScale(glm::vec3(14.0f, 19.0f, 10.0f));
+  card->transform.SetPosition(glm::vec3(50.0f, 50.0f, 0.0f));
+  card->transform.SetScale(glm::vec3(14.0f, 19.0f, 10.0f));
 
-  AddRenderable(sprite);
+  AddRenderable(card);
 }
 
 Renderer::~Renderer()
@@ -111,6 +114,8 @@ void Renderer::Update()
       glBindTexture(GL_TEXTURE_2D, 0);
     }
 
+    shaderptr->SetVector("tileCoords", renderable->GetTileCoords());
+
     //apply the model transform
     if(m_CurShader)
     {
@@ -128,7 +133,7 @@ void Renderer::Update()
 
   if(glfwWindowShouldClose(m_Window))
   {
-    app->RequestClose();
+    gApp->RequestClose();
   }
 }
 
@@ -140,6 +145,7 @@ void Renderer::AddRenderable(Renderable* renderable)
     return;
   }
 
+  renderable->UpdateBuffers();
   renderables.push_back(renderable);
 }
 

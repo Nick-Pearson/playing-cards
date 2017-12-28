@@ -7,7 +7,15 @@
 #include "renderer.h"
 #include "logging.h"
 
-Application* app;
+Application* gApp(nullptr);
+
+Application::Application()
+{
+  if(gApp != nullptr)
+  {
+    Fatal("Multiple application objects have been created");
+  }
+}
 
 Application::~Application()
 {

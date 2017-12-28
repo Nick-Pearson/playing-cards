@@ -1,11 +1,13 @@
 #ifndef TEXTURE_H
 #define TEXTURE_H
 
+#include <string>
+
 class Texture
 {
 public:
   //construct a texture from filepath (relative to the resources directory)
-  Texture(const char* filepath);
+  Texture(const std::string& filepath);
 
   //copy constructor
   Texture(Texture* other);

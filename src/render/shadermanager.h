@@ -4,6 +4,8 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+#include <string>
+
 class ShaderProgram;
 
 enum ShaderType
@@ -27,7 +29,7 @@ public:
 
 private:
 
-  unsigned int CompileShader(const char* shaderFileName, GLenum ShaderType);
+  unsigned int CompileShader(const std::string& shaderFileName, GLenum ShaderType);
 
   ShaderProgram* shaderPrograms[(int)ShaderType::MAX];
 };

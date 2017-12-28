@@ -55,17 +55,14 @@ void Renderable::UpdateBuffers()
 void Renderable::SetTexture(const std::shared_ptr<Texture>& texture)
 {
   m_Texture = texture;
-  m_TileX = -1;
-  m_TileY = -1;
 
   m_Shader = ShaderType::STD;
 }
 
-void Renderable::SetAtlasTexture(const std::shared_ptr<Texture>& texture, int tileX, int tileY)
+void Renderable::SetAtlasTexture(const std::shared_ptr<Texture>& texture, const glm::ivec4& tileCoords)
 {
   m_Texture = texture;
-  m_TileX = tileX;
-  m_TileY = tileY;
+  m_TileCoords = tileCoords;
 
   m_Shader = ShaderType::ATLAS;
 }

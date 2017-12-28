@@ -1,5 +1,5 @@
 #include "paths.h"
 
 
-const char* Paths::ShaderPath = "resources/shaders";
-const char* Paths::TexturePath = "resources/textures";
+const std::string Paths::ShaderPath = "resources/shaders";
+const std::string Paths::TexturePath = "resources/textures";

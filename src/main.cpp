@@ -5,11 +5,11 @@ long get_timestamp();
 
 int main(int argc, char** argv)
 {
-  app = new Application;
+  gApp = new Application;
 
-  app->PerformGameLoop();
+  gApp->PerformGameLoop();
 
-  delete app;
+  delete gApp;
 
   return 0;
 }

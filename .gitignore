@@ -1,4 +1,7 @@
-build/
 *.a
 *.o
+*.d
+
+build/
+
 libs/glm/

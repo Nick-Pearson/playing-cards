@@ -11,16 +11,30 @@
 
 class Texture;
 
-class Renderable
+class Renderable : public std::enable_shared_from_this<Renderable>
 {
 
 public:
 
   Renderable() {}
-  virtual ~Renderable() {}
+
+  Renderable(const Renderable* other);
+
+  virtual ~Renderable();
+
+  template<typename T, typename... Args>
+  static std::shared_ptr<T> CreateRenderable(Args... args)
+  {
+    std::shared_ptr<T> instance = std::make_shared<T>(new T(args...));
+    instance->UpdateBuffers();
+    instance->SetVisible(true);
+    return instance;
+  }
 
   // force the mesh buffer to update
   void UpdateBuffers();
+
+  void SetVisible(bool visible);
 
   int GetVAO() const { return m_VAO; }
   ShaderType GetShader() const { return m_Shader; }
@@ -48,6 +62,8 @@ private:
   unsigned int m_VBO = -1;
   unsigned int m_EBO = -1;
   bool m_IsValid = false;
+
+  bool m_IsVisible = false;
 
   ShaderType m_Shader = ShaderType::STD;
 };

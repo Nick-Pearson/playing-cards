@@ -2,10 +2,13 @@
 #define RENDERER_H
 
 #include <vector>
+#include <memory>
 
 #include <glm.hpp>
 
 class Renderable;
+
+extern class Renderer* gRenderer;
 
 class Renderer
 {
@@ -16,8 +19,11 @@ public:
 
   void Update();
 
-  void AddRenderable(Renderable* renderable);
-  void RemoveRenderable(Renderable* renderable);
+  void AddRenderable(std::shared_ptr<Renderable> renderable);
+  void RemoveRenderable(std::shared_ptr<Renderable> renderable);
+
+  void SetGameAreaSize(float minSizeX, float minSizeY);
+  void OnWindowSizeChanged(int width, int height);
 
 private:
 
@@ -32,7 +38,10 @@ private:
   int m_WindowSizeX;
   int m_WindowSizeY;
 
-  std::vector<Renderable*> renderables;
+  float m_GameAreaSizeX;
+  float m_GameAreaSizeY;
+
+  std::vector<std::shared_ptr<Renderable>> renderables;
 };
 
 #endif

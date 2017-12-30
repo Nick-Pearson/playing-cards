@@ -104,3 +104,7 @@ cardSpadesK
 0,190,140,190
 cardSpadesQ
 0,0,140,190
+cardNone
+700,570,140,190
+cardEndOfDeck
+700,760,140,190

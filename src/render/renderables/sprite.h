@@ -5,6 +5,11 @@
 
 class Sprite : public Renderable
 {
+public:
+  Sprite() {}
+  Sprite(const Sprite* other) : Renderable(other) {}
+
+protected:
   virtual void GetMeshData(std::vector<float>& outVerticies, std::vector<unsigned int>& outIndicies) const override;
 };
 

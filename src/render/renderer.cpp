@@ -7,17 +7,21 @@
 #include "texture.h"
 #include "texturemanager.h"
 
-#include "card.h"
-
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-#include <glm.hpp>
 #include <gtc/matrix_transform.hpp>
 #include <gtc/type_ptr.hpp>
 
 #include <iostream>
 #include <memory>
+
+Renderer* gRenderer(nullptr);
+
+void glfw_FramebufferChangedCallback(GLFWwindow* window, int width, int height)
+{
+  if(gRenderer) gRenderer->OnWindowSizeChanged(width, height);
+}
 
 Renderer::Renderer(int windowSizeX /*= 640*/, int windowSizeY /*= 480*/) :
   m_WindowSizeX(windowSizeX), m_WindowSizeY(windowSizeY)
@@ -52,7 +56,13 @@ Renderer::Renderer(int windowSizeX /*= 640*/, int windowSizeY /*= 480*/) :
     return;
   }
 
-  glViewport(0, 0, m_WindowSizeX, m_WindowSizeY);
+  m_GameAreaSizeX = 200.0f;
+  m_GameAreaSizeY = 100.0f;
+
+  glfwSetFramebufferSizeCallback(m_Window, glfw_FramebufferChangedCallback);
+  OnWindowSizeChanged(windowSizeX, windowSizeY);
+
+  glClearColor(0.01f, 0.20f, 0.04f, 1.0f);
 
   // compile shaders
   m_ShaderManager = new ShaderManager;
@@ -60,18 +70,6 @@ Renderer::Renderer(int windowSizeX /*= 640*/, int windowSizeY /*= 480*/) :
 
   //texture manager
   gTextureManager = new TextureManager;
-
-  //camera location
-  float aspectRatio = (float)m_WindowSizeY / (float)m_WindowSizeX;
-  m_ProjectionMatrix = glm::ortho(0.0f, 200.0f, 0.0f, 200.0f * aspectRatio, -1.0f, 100.0f);
-
-  // DEBUG
-  Card* card = new Card(CardType::Ace, Suit::Diamonds, CardFace::FaceUp);
-
-  card->transform.SetPosition(glm::vec3(50.0f, 50.0f, 0.0f));
-  card->transform.SetScale(glm::vec3(14.0f, 19.0f, 10.0f));
-
-  AddRenderable(card);
 }
 
 Renderer::~Renderer()
@@ -87,7 +85,10 @@ void Renderer::Update()
 {
   glClear(GL_COLOR_BUFFER_BIT);
 
-  for(Renderable* renderable : renderables)
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+  for(auto& renderable : renderables)
   {
     //shader
     ShaderProgram* shaderptr = m_ShaderManager->GetShaderProgram(renderable->GetShader());
@@ -137,23 +138,62 @@ void Renderer::Update()
   }
 }
 
-void Renderer::AddRenderable(Renderable* renderable)
+void Renderer::AddRenderable(std::shared_ptr<Renderable> renderable)
 {
-  if(renderable == nullptr)
+  if(renderable.get() == nullptr)
   {
     Error("Attempted to add nullptr renderable");
     return;
   }
 
-  renderable->UpdateBuffers();
   renderables.push_back(renderable);
 }
 
-void Renderer::RemoveRenderable(Renderable* renderable)
+void Renderer::RemoveRenderable(std::shared_ptr<Renderable> renderable)
 {
-  if(renderable == nullptr)
+  if(renderable.get() == nullptr)
   {
     Error("Attempted to add nullptr renderable");
     return;
   }
+
+  //TODO remove swap
+}
+
+void Renderer::SetGameAreaSize(float minSizeX, float minSizeY)
+{
+  m_GameAreaSizeX = minSizeX;
+  m_GameAreaSizeY = minSizeY;
+
+  float reqAspectRatio = minSizeY / minSizeX;
+  float aspectRatio = (float)m_WindowSizeY / (float)m_WindowSizeX;
+
+  if(reqAspectRatio > aspectRatio)
+  {
+    float sizeX = minSizeY / aspectRatio;
+    float Xoffset = (sizeX - minSizeX) * 0.5f;
+
+    m_ProjectionMatrix = glm::ortho(-Xoffset, minSizeX + Xoffset, 0.0f, minSizeY, -1.0f, 100.0f);
+  }
+  else
+  {
+    float sizeY = minSizeX * aspectRatio;
+    float Yoffset = (sizeY - minSizeY) * 0.5f;
+
+    m_ProjectionMatrix = glm::ortho(0.0f, minSizeX, -Yoffset, minSizeY + Yoffset, -1.0f, 100.0f);
+  }
+
+  if(m_CurShader != nullptr)
+  {
+    m_CurShader->SetMatrix("projection", m_ProjectionMatrix);
+  }
+}
+
+void Renderer::OnWindowSizeChanged(int width, int height)
+{
+  m_WindowSizeX = width;
+  m_WindowSizeY = height;
+
+  glViewport(0, 0, width, height);
+  SetGameAreaSize(m_GameAreaSizeX, m_GameAreaSizeY);
 }

@@ -5,8 +5,6 @@
 
 extern class Application* gApp;
 
-class GameObject;
-
 class Application
 {
 public:
@@ -19,9 +17,6 @@ public:
 
   void PerformGameLoop();
 
-  void AddToWorld(GameObject* obj);
-  void RemoveFromWorld(GameObject* obj);
-
 private:
 
   static Application* instance;
@@ -31,10 +26,6 @@ private:
 private:
 
   bool m_ShouldBeClosed = false;
-
-  std::vector<GameObject*> m_GameObjects;
-
-  class Renderer* m_Renderer;
 };
 
 #endif

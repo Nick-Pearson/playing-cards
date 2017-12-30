@@ -2,35 +2,41 @@
 
 #include "texturemanager.h"
 
-Card::Card(CardType card, Suit suit, CardFace facing /*= CardFace::FaceUp*/)
+Card::Card(CardDef definition)
 {
-  m_Card = card;
-  m_Suit = suit;
-  m_Facing = facing;
+  m_Definition = definition;
+  UpdateTexture();
+
+  transform.SetScale(glm::vec3(14.0f, 19.0f, 1.0f));
+}
+
+Card::Card(const Card* other) : Sprite(other)
+{
+  m_Definition = other->m_Definition;
   UpdateTexture();
 }
 
 void Card::SetSuit(Suit newSuit)
 {
-  m_Suit = newSuit;
+  m_Definition.suit = newSuit;
   UpdateTexture();
 }
 
 void Card::SetCard(CardType newCard)
 {
-  m_Card = newCard;
+  m_Definition.cardType = newCard;
   UpdateTexture();
 }
 
 void Card::Flip()
 {
-  if(IsFaceUp()) m_Facing = CardFace::FaceDown;
-  else m_Facing = CardFace::FaceUp;
+  if(IsFaceUp()) m_Definition.facing = CardFace::FaceDown;
+  else m_Definition.facing = CardFace::FaceUp;
 }
 
 void Card::UpdateTexture()
 {
-  if(m_Facing == CardFace::FaceDown)
+  if(m_Definition.facing == CardFace::FaceDown)
   {
     SetAtlasTexture(gTextureManager->FindOrLoadTexture("playingCardBacks.png"), gTextureManager->GetTileCoords("playingCardBacks.csv", "cardBack_blue2"));
     return;
@@ -38,29 +44,31 @@ void Card::UpdateTexture()
 
   std::string tileID = "card";
 
-  if(m_Card != CardType::Joker)
+  switch(m_Definition.suit)
   {
-    switch(m_Suit)
-    {
-    case Suit::Clubs:
-      tileID.append("Clubs");
-      break;
-    case Suit::Hearts:
-      tileID.append("Hearts");
-      break;
-    case Suit::Spades:
-      tileID.append("Spades");
-      break;
-    case Suit::Diamonds:
-      tileID.append("Diamonds");
-      break;
-    }
+  case Suit::S_Clubs:
+    tileID.append("Clubs");
+    break;
+  case Suit::S_Hearts:
+    tileID.append("Hearts");
+    break;
+  case Suit::S_Spades:
+    tileID.append("Spades");
+    break;
+  case Suit::S_Diamonds:
+    tileID.append("Diamonds");
+    break;
+  case Suit::S_None:
+    break;
   }
 
-  switch(m_Card)
+  switch(m_Definition.cardType)
   {
   case CardType::Joker:
     tileID.append("Joker");
+    break;
+  case CardType::C_None:
+    tileID.append("None");
     break;
   case CardType::Ace:
     tileID.append("A");

@@ -1,11 +1,34 @@
 #include "renderable.h"
 
 #include "logging.h"
+#include "renderer.h"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
 #include <gtc/matrix_transform.hpp>
+
+Renderable::Renderable(const Renderable* other)
+{
+  SetVisible(false);
+
+  transform = other->transform;
+  m_Texture = other->m_Texture;
+  m_TileCoords = other->m_TileCoords;
+
+  m_VAO = other->m_VAO;
+  m_VBO = other->m_VBO;
+  m_EBO = other->m_EBO;
+  m_IsValid = other->m_IsValid;
+  m_Shader = other->m_Shader;
+
+  SetVisible(other->m_IsVisible);
+}
+
+Renderable::~Renderable()
+{
+  SetVisible(false);
+}
 
 void Renderable::GenerateBuffers()
 {
@@ -50,6 +73,21 @@ void Renderable::UpdateBuffers()
   glBindVertexArray(0);
   glBindBuffer(GL_ARRAY_BUFFER, 0);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+}
+
+void Renderable::SetVisible(bool visible)
+{
+  if(visible == m_IsVisible) return;
+
+  m_IsVisible = visible;
+
+  if(gRenderer)
+  {
+    if(m_IsVisible)
+      gRenderer->AddRenderable(shared_from_this());
+    else
+      gRenderer->RemoveRenderable(shared_from_this());
+  }
 }
 
 void Renderable::SetTexture(const std::shared_ptr<Texture>& texture)

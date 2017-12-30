@@ -6,6 +6,7 @@
 
 #include "renderer.h"
 #include "logging.h"
+#include "solitairegame.h"
 
 Application* gApp(nullptr);
 
@@ -19,7 +20,11 @@ Application::Application()
 
 Application::~Application()
 {
-  delete m_Renderer;
+  {
+    Renderer* renderer = gRenderer;
+    gRenderer = nullptr;
+    delete renderer;
+  }
 }
 
 void Application::RequestClose()
@@ -31,7 +36,10 @@ void Application::RequestClose()
 
 void Application::PerformGameLoop()
 {
-  m_Renderer = new Renderer;
+  gRenderer = new Renderer;
+
+  SolitaireGame* game = new SolitaireGame;
+  game->Initialise();
 
   long targetFrameDuration = floor(1000000.0 / TARGET_FRAMERATE);
 
@@ -40,7 +48,7 @@ void Application::PerformGameLoop()
     long frameStart = getTimestamp();
 
     //frame work
-    m_Renderer->Update();
+    gRenderer->Update();
 
     //frame rate governing
     long frameEnd = getTimestamp();
@@ -50,24 +58,6 @@ void Application::PerformGameLoop()
     {
       usleep(sleepTime);
     }
-  }
-}
-
-void AddToWorld(GameObject* obj)
-{
-  if(obj == nullptr)
-  {
-    Error("Tried to add nullptr object to world");
-    return;
-  }
-}
-
-void RemoveFromWorld(GameObject* obj)
-{
-  if(obj == nullptr)
-  {
-    Error("Tried to remove nullptr object from world");
-    return;
   }
 }
 

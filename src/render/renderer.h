@@ -7,6 +7,7 @@
 #include <glm.hpp>
 
 class Renderable;
+class GLFWwindow;
 
 extern class Renderer* gRenderer;
 
@@ -25,9 +26,14 @@ public:
   void SetGameAreaSize(float minSizeX, float minSizeY);
   void OnWindowSizeChanged(int width, int height);
 
+  inline GLFWwindow* GetWindow() const { return m_Window; }
+
+  glm::vec2 Deproject(const glm::vec2& screenPos) const;
+  inline void GetWindowSize(int& outSizeX, int& outSizeY) const { outSizeX = m_WindowSizeX; outSizeY = m_WindowSizeY; }
+
 private:
 
-  class GLFWwindow* m_Window = nullptr;
+  GLFWwindow* m_Window = nullptr;
 
   class ShaderManager* m_ShaderManager = nullptr;
 

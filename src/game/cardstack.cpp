@@ -1,4 +1,5 @@
 #include "cardstack.h"
+#include "logging.h"
 
 #include "card.h"
 
@@ -22,9 +23,16 @@ CardDef CardStack::PopCard()
   if(Size() == 0) return CardDef();
 
   CardStackItem item = m_Stack.back();
+
+  if(Card* card = item.representation.get())
+  {
+    card->SetVisible(false);
+  }
+
   m_Stack.pop_back();
 
   UpdateEmptyCard();
+  UpdateClickableArea();
 
   return item.definition;
 }
@@ -47,6 +55,7 @@ void CardStack::PushCard(const CardDef& newCard)
 
   CreateRepresentation(Size() - 1);
   UpdateEmptyCard();
+  UpdateClickableArea();
 }
 
 void CardStack::PushCards(const std::vector<CardDef>& cards)
@@ -61,6 +70,7 @@ void CardStack::SetRootLocation(const glm::vec3& newPosition)
 {
   m_Location = newPosition;
   UpdateCardLocations();
+  UpdateClickableArea();
 }
 
 CardDef CardStack::PeekCard(int index) const
@@ -75,6 +85,13 @@ std::shared_ptr<Card> CardStack::GetRepresentation(int index) const
   if(!isValidIndex(index)) return nullptr;
 
   return m_Stack[index].representation;
+}
+
+void CardStack::OnClicked(double mouseX, double mouseY, int button, int action, int mods)
+{
+  if(action != 0) return;
+
+  PopCard();
 }
 
 void CardStack::UpdateCardLocations()
@@ -92,6 +109,17 @@ void CardStack::UpdateCardLocations()
     e_c->transform.SetPosition(m_Location);
 }
 
+void CardStack::UpdateClickableArea()
+{
+  int offset = Size() - 1;
+  SetClickableArea(Rect(
+    m_Location.x - 14.0f,
+    m_Location.y - 19.0f - (StackSpacing.y * offset),
+    (14.0f * 2.0f) + (StackSpacing.x * offset),
+    (19.0f * 2.0f) + (StackSpacing.y * offset)
+  ));
+}
+
 void CardStack::CreateRepresentation(int index)
 {
   if(!isValidIndex(index)) return;
@@ -107,12 +135,12 @@ void CardStack::CreateRepresentation(int index)
 
 void CardStack::UpdateEmptyCard()
 {
-  if(Size() == 0 && !empty_card.get())
+  if((Size() == 0 && emptyCardVisible) && !empty_card.get())
   {
-    empty_card = Renderable::CreateRenderable<Card>(CardDef(Suit::S_None, CardType::C_None, CardFace::FaceUp));
+    empty_card = Renderable::CreateRenderable<Card>(emptycard_def);
     empty_card->transform.SetPosition(m_Location);
   }
-  else if (Size() != 0 && empty_card.get())
+  else if ((Size() != 0 || !emptyCardVisible) && empty_card.get())
   {
     empty_card->SetVisible(false);
     empty_card.reset();

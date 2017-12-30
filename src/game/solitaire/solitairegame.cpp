@@ -3,6 +3,7 @@
 #include "renderer.h"
 #include "card.h"
 #include "cardstack.h"
+#include "deckstack.h"
 
 #include <memory>
 
@@ -51,7 +52,6 @@ void SolitaireGame::SetupGame()
   }
 
   // REST OF DECK
-  deckstack = new CardStack(deck);
-  deckstack->StackSpacing = glm::vec3(-0.1f, -0.05f, 0.0f);
+  deckstack = new DeckStack(deck);
   deckstack->SetRootLocation(glm::vec3(20.0f, 247.0f - 25.0f, 0.0f));
 }

@@ -26,7 +26,7 @@ void glfw_FramebufferChangedCallback(GLFWwindow* window, int width, int height)
 Renderer::Renderer(int windowSizeX /*= 640*/, int windowSizeY /*= 480*/) :
   m_WindowSizeX(windowSizeX), m_WindowSizeY(windowSizeY)
 {
-  LogVerbose("Starting up renderer");
+  LogVerbose("Starting up Renderer");
 
   // Initialise GLFW
   if(!glfwInit())
@@ -74,7 +74,7 @@ Renderer::Renderer(int windowSizeX /*= 640*/, int windowSizeY /*= 480*/) :
 
 Renderer::~Renderer()
 {
-  LogVerbose("Shutting down renderer");
+  LogVerbose("Shutting down Renderer");
 
   delete m_ShaderManager;
 
@@ -157,7 +157,14 @@ void Renderer::RemoveRenderable(std::shared_ptr<Renderable> renderable)
     return;
   }
 
-  //TODO remove swap
+  for(unsigned int i = 0; i < renderables.size(); ++i)
+  {
+    if(renderables[i] == renderable)
+    {
+      renderables.erase(renderables.begin() + i);
+      break;
+    }
+  }
 }
 
 void Renderer::SetGameAreaSize(float minSizeX, float minSizeY)
@@ -196,4 +203,10 @@ void Renderer::OnWindowSizeChanged(int width, int height)
 
   glViewport(0, 0, width, height);
   SetGameAreaSize(m_GameAreaSizeX, m_GameAreaSizeY);
+}
+
+glm::vec2 Renderer::Deproject(const glm::vec2& screenPos) const
+{
+  glm::mat4 deprojectionMatrix = glm::inverse(m_ProjectionMatrix);
+  return deprojectionMatrix * glm::vec4((screenPos * 2.0f) - 1.0f, -1.0f, 1.0f);
 }

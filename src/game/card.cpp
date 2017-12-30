@@ -70,6 +70,9 @@ void Card::UpdateTexture()
   case CardType::C_None:
     tileID.append("None");
     break;
+  case CardType::EndOfDeck:
+    tileID.append("EndOfDeck");
+    break;
   case CardType::Ace:
     tileID.append("A");
     break;

@@ -7,8 +7,15 @@
 #include <iostream>
 #include <cstring>
 
+ShaderManager::ShaderManager()
+{
+  LogVerbose("Starting up ShaderManager");
+}
+
 ShaderManager::~ShaderManager()
 {
+  LogVerbose("Shutting down ShaderManager");
+
   for(int i = 0; i < (int)ShaderType::MAX; ++i)
     delete shaderPrograms[i];
 }

@@ -5,7 +5,9 @@
 #include <math.h>
 
 #include "renderer.h"
+#include "inputmanager.h"
 #include "logging.h"
+
 #include "solitairegame.h"
 
 Application* gApp(nullptr);
@@ -25,6 +27,8 @@ Application::~Application()
     gRenderer = nullptr;
     delete renderer;
   }
+
+  delete gInputManager;
 }
 
 void Application::RequestClose()
@@ -33,10 +37,12 @@ void Application::RequestClose()
 }
 
 #define TARGET_FRAMERATE 30
+#define PRINT_FPS 0
 
 void Application::PerformGameLoop()
 {
   gRenderer = new Renderer;
+  gInputManager = new InputManager(gRenderer->GetWindow());
 
   SolitaireGame* game = new SolitaireGame;
   game->Initialise();
@@ -58,6 +64,11 @@ void Application::PerformGameLoop()
     {
       usleep(sleepTime);
     }
+
+    #if PRINT_FPS
+    float frameTime = getTimestamp() - frameStart;
+    printf("%.2f FPS\n", 1000000.0 / frameTime);
+    #endif
   }
 }
 

@@ -15,6 +15,7 @@ enum CardType
 {
   C_None,
   Joker,
+  EndOfDeck,
 
   Ace,
   Two,

@@ -19,7 +19,7 @@ enum ShaderType
 class ShaderManager
 {
 public:
-  ShaderManager() {}
+  ShaderManager();
   virtual ~ShaderManager();
 
   void CompileAllShaders();
